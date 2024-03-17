@@ -1,0 +1,115 @@
+﻿@page "/"
+<PageTitle>Calendar</PageTitle>
+<h3>Calendar</h3>
+
+<div class="navigation">
+    <button @onclick="PreviousMonth">&lt;</button>
+    <h4>@CurrentMonth.ToString("MMMM yyyy")</h4>
+    <button @onclick="NextMonth">&gt;</button>
+</div>
+
+<table class="calendar">
+    <thead>
+        <tr>
+            <th>Sun</th>
+            <th>Mon</th>
+            <th>Tue</th>
+            <th>Wed</th>
+            <th>Thu</th>
+            <th>Fri</th>
+            <th>Sat</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var week in CalendarWeeks)
+        {
+            <tr>
+                @foreach (var day in week)
+                {
+                    <td>@(day?.Day)</td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<List<DateTime?>> CalendarWeeks { get; set; }
+    private DateTime CurrentMonth { get; set; } = DateTime.Today;
+
+    protected override void OnInitialized()
+    {
+        GenerateCalendar(CurrentMonth.Year, CurrentMonth.Month);
+    }
+
+    private void GenerateCalendar(int year, int month)
+    {
+        var firstDayOfMonth = new DateTime(year, month, 1);
+        var startDayOfWeek = (int)firstDayOfMonth.DayOfWeek;
+        var daysInMonth = DateTime.DaysInMonth(year, month);
+
+        var currentDay = firstDayOfMonth.AddDays(-startDayOfWeek);
+        CalendarWeeks = new List<List<DateTime?>>();
+
+        while (currentDay.Month < month || (currentDay.Month == month && currentDay.DayOfWeek != DayOfWeek.Monday))
+        {
+            var week = new List<DateTime?>();
+            for (int i = 0; i < 7; i++)
+            {
+                if (currentDay.Month == month)
+                {
+                    week.Add(currentDay);
+                }
+                else
+                {
+                    week.Add(null);
+                }
+
+                currentDay = currentDay.AddDays(1);
+            }
+
+            CalendarWeeks.Add(week);
+        }
+    }
+
+    private void PreviousMonth()
+    {
+        CurrentMonth = CurrentMonth.AddMonths(-1);
+        GenerateCalendar(CurrentMonth.Year, CurrentMonth.Month);
+    }
+
+    private void NextMonth()
+    {
+        CurrentMonth = CurrentMonth.AddMonths(1);
+        GenerateCalendar(CurrentMonth.Year, CurrentMonth.Month);
+    }
+}
+
+<style>
+    .calendar {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .calendar th,
+    .calendar td {
+        border: 1px solid #ccc;
+        padding: 5px;
+        text-align: center;
+    }
+
+    .navigation {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+
+    .navigation button {
+        background-color: transparent;
+        border: none;
+        cursor: pointer;
+        font-size: 1.2em;
+        margin: 0 10px;
+    }
+</style>

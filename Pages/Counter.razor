@@ -1,0 +1,52 @@
+﻿@page "/counter"
+@using System;
+@using System.Net.Http;
+@using System.Net.Http.Json;
+@using task3.Data;
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create New Task</PageTitle>
+
+<h1>Create New Task</h1>
+
+<EditForm Model="@newTask" OnValidSubmit="CreateTask">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="name">Name:</label>
+        <InputText id="name" class="form-control" @bind-Value="@newTask.Name" />
+    </div>
+
+    <div class="form-group">
+        <label for="dueDate">Due Date:</label>
+        <InputDate id="dueDate" class="form-control" @bind-Value="@newTask.DueDate" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create Task</button>
+</EditForm>
+
+@code {
+    private TaskItem newTask = new TaskItem();
+    private HttpClient httpClient;
+
+    protected override void OnInitialized()
+    {
+        httpClient = new HttpClient();
+        httpClient.BaseAddress = new Uri(NavigationManager.BaseUri);
+    }
+
+    private async Task CreateTask()
+    {
+        try
+        {
+            // Відправляємо нове завдання на сервер
+            await httpClient.PostAsJsonAsync("api/tasks", newTask);
+            Console.WriteLine("Завдання успішно створено!");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Помилка під час створення завдання: {ex.Message}");
+        }
+    }
+}

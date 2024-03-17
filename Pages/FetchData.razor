@@ -1,0 +1,61 @@
+﻿@page "/fetchdata"
+@inject HttpClient Http
+@using task3.Data
+
+<PageTitle>Weather forecast</PageTitle>
+
+<h1>Weather forecast</h1>
+
+<p>This component demonstrates fetching data from the server.</p>
+
+@if (taskItems == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>№</th>
+                <th>Title</th>
+                <th>Complete to</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in taskItems)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Name</td>
+                    <td>@item.DueDate.ToShortDateString()</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private TaskItem[]? taskItems;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            taskItems = await Http.GetFromJsonAsync<TaskItem[]>("sample-data/tasks.json");
+        }
+        catch (Exception ex)
+        {
+            // Обробка помилок під час завантаження даних
+            Console.WriteLine($"Помилка під час завантаження даних: {ex.Message}");
+        }
+    }
+    public class TaskItem
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public DateTime DueDate { get; set; }
+    }
+
+
+}
